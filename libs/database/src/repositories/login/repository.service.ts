@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from '../../database.service';
 import {
+  ILoginCreateOneParams,
+  ILoginCreateOnePromise,
   ILoginFindFirstParams,
   ILoginFindFirstPromise,
   ILoginUpdatePasswordParams,
@@ -10,6 +12,21 @@ import {
 @Injectable()
 export class LoginRepository {
   constructor(private readonly repository: DatabaseService) {}
+
+  async createOne(
+    params: ILoginCreateOneParams,
+  ): Promise<ILoginCreateOnePromise | void> {
+    const promise = await this.repository.login
+      .create({
+        data: params,
+        select: {
+          id: true,
+        },
+      })
+      .catch((err) => this.repository.errorHandler(err));
+
+    if (promise) return promise;
+  }
 
   async findOneById(id: string): Promise<ILoginFindFirstPromise | void> {
     const promise = await this.repository.login

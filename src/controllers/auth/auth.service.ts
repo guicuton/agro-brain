@@ -3,6 +3,8 @@ import { UserService } from '@app/user';
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import {
+  IAuthLoginCreateParams,
+  IAuthLoginCreatePromise,
   IAuthLoginParams,
   IAuthLoginPasswordUpdateParams,
   IAuthLoginPromise,
@@ -36,6 +38,21 @@ export class AuthenticationControllerService {
     };
   }
 
+  async createOne(
+    params: IAuthLoginCreateParams,
+  ): Promise<IAuthLoginCreatePromise> {
+    const { body, ip, user } = params;
+
+    const serviceResult = await this.userService.createOne(body);
+
+    this.logger.log(
+      `[update] - ADMINID:${user.loginId} | CREATED_LOGINID:${serviceResult.id} | IP:${ip} - USER CREATED`,
+      this.logContext,
+    );
+
+    return serviceResult;
+  }
+
   async update(params: IAuthLoginPasswordUpdateParams): Promise<void> {
     const { body, ip, user } = params;
     const { currentPassword, newPassword } = body;
@@ -47,6 +64,9 @@ export class AuthenticationControllerService {
       newPassword,
     });
 
-    this.logger.log(`[update] - LOGINID:${id} | IP:${ip} - PASSWORD UPDATE`);
+    this.logger.log(
+      `[update] - LOGINID:${id} | IP:${ip} - PASSWORD UPDATE`,
+      this.logContext,
+    );
   }
 }

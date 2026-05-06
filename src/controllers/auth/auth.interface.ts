@@ -1,5 +1,5 @@
 import { IAuthenticatedUser } from '@app/auth';
-import { IAuthPutPasswordDTO } from './auth.dto';
+import { IAuthCreateDTO, IAuthPutPasswordDTO } from './auth.dto';
 
 export interface IAuthLoginParams {
   user: IAuthenticatedUser;
@@ -14,4 +14,14 @@ export interface IAuthLoginPasswordUpdateParams {
   user: IAuthenticatedUser;
   ip: string;
   body: IAuthPutPasswordDTO;
+}
+
+export interface IAuthLoginCreateParams {
+  user: IAuthenticatedUser;
+  ip: string;
+  body: IAuthCreateDTO;
+}
+
+export interface IAuthLoginCreatePromise {
+  id: string;
 }

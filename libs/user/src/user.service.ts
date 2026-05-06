@@ -4,6 +4,8 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { DEFAULT_TTL } from '../../../utils/constants';
 import {
+  IUserCreateParams,
+  IUserCreatePromise,
   IUserUpdatePasswordParams,
   IUserValidateLoginParams,
   IUserValidateLoginPromise,
@@ -16,6 +18,24 @@ export class UserService {
     private readonly cache: CacheModuleServices,
     private readonly repository: LoginRepository,
   ) {}
+
+  async createOne(params: IUserCreateParams): Promise<IUserCreatePromise> {
+    const { username, password, email } = params;
+    const passwordHash = bcrypt.hashSync(password, 10);
+
+    const repositoryResult = await this.repository.createOne({
+      username,
+      email,
+      password: passwordHash,
+      created_at: new Date(),
+    });
+
+    if (repositoryResult) {
+      return repositoryResult;
+    }
+
+    throw new UnauthorizedException();
+  }
 
   async updatePassword(
     params: IUserUpdatePasswordParams,

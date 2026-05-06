@@ -17,3 +17,13 @@ export interface IUserUpdatePasswordParams {
   currentPassword: string;
   newPassword: string;
 }
+
+export interface IUserCreateParams {
+  username: string;
+  password: string;
+  email: string;
+}
+
+export interface IUserCreatePromise {
+  id: string;
+}
