@@ -1,6 +1,7 @@
 # Agro Brain
 
 API para gestão de produtores rurais, propriedades, safras e culturas.
+Aplicação do teste técnico para Backend Node [Brain Agriculture](https://github.com/brain-ag/trabalhe-conosco)
 
 ## Infra
 
