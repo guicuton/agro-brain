@@ -75,6 +75,10 @@ Variáveis esperadas:
 | `REDIS_PASS`            | Senha do Redis                                |
 | `JWT_SECRET`            | Segredo usado para assinar/validar tokens JWT |
 
+## Usuário default
+
+Por padrão o projeto está com o usuário e senha (ambos) definidos como **admin**
+
 ## Inicialização em dev
 
 ### 1º passo — Instalar dependências
