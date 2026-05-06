@@ -1,0 +1,117 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider     = "prisma-client"
+  output       = "./generated"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model login {
+  id         String   @id @default(uuid(7))
+  username   String   @unique @db.VarChar(40)
+  password   String   @db.VarChar(60)
+  email      String   @db.VarChar(254)
+  created_at DateTime
+
+  @@index([username])
+  @@index([password])
+  @@index([email])
+}
+
+model farm_owner {
+  id         String          @id @default(uuid(7))
+  fullname   String          @db.VarChar(255)
+  doc        String          @db.VarChar(20)
+  city       String          @db.VarChar(255)
+  state      String          @db.VarChar(255)
+  country    String          @db.VarChar(255)
+  created_at DateTime
+  updated_at DateTime        @updatedAt
+  deleted    Boolean         @default(false)
+  properties farm_property[]
+  harvests   farm_harvest[]
+  crops      farm_crops[]
+
+  @@unique([doc])
+  @@index([city])
+  @@index([state])
+  @@index([city, state])
+}
+
+model farm_property {
+  id              String    @id @default(uuid(7))
+  owner_id        String
+  alias           String    @db.VarChar(255)
+  area_total      Int
+  area_arable     Int
+  area_vegetation Int
+  area_type       AREA_TYPE @default(HECTAR)
+  city            String    @db.VarChar(255)
+  state           String    @db.VarChar(255)
+  country         String    @db.VarChar(255)
+  metadata        Json?
+  deleted         Boolean   @default(false)
+  created_at      DateTime
+  updated_at      DateTime  @updatedAt
+
+  owner    farm_owner     @relation(fields: [owner_id], references: [id], onDelete: Cascade)
+  harvests farm_harvest[]
+  crops    farm_crops[]
+
+  @@unique([owner_id, alias])
+  @@index([city])
+  @@index([state])
+  @@index([city, state])
+}
+
+model farm_harvest {
+  id          String   @id @default(uuid(7))
+  owner_id    String
+  property_id String
+  metadata    Json?
+  crop        Int
+  deleted     Boolean  @default(false)
+  created_at  DateTime
+  updated_at  DateTime @updatedAt
+
+  owner    farm_owner    @relation(fields: [owner_id], references: [id], onDelete: Cascade)
+  property farm_property @relation(fields: [property_id], references: [id], onDelete: Cascade)
+  crops    farm_crops[]
+
+  @@unique([property_id, crop])
+  @@index([crop])
+}
+
+model farm_crops {
+  id          String   @id @default(uuid(7))
+  alias       String   @db.VarChar(255)
+  area_arable Int
+  owner_id    String
+  property_id String
+  harvest_id  String
+  metadata    Json?
+  deleted     Boolean  @default(false)
+  created_at  DateTime
+  updated_at  DateTime @updatedAt
+
+  owner    farm_owner    @relation(fields: [owner_id], references: [id], onDelete: Cascade)
+  property farm_property @relation(fields: [property_id], references: [id], onDelete: Cascade)
+  harvest  farm_harvest  @relation(fields: [harvest_id], references: [id], onDelete: Cascade)
+
+  @@unique([harvest_id, alias])
+  @@index([area_arable])
+}
+
+enum AREA_TYPE {
+  HECTAR
+  METER
+  KM
+}

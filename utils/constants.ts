@@ -1,0 +1,18 @@
+import { seconds } from '@nestjs/throttler';
+
+export const DEFAULT_TTL = {
+  minute: 60, // 1min
+  five: 60 * 5, // 5min
+  ten: 60 * 10, // 10min
+  quarter: 60 * 15, // 15 minutes
+  half: 60 * 30, // 30 minutes
+  hour: 60 * 60, // 1 hour
+  day: 60 * 60 * 24, // 1day
+};
+
+export const ThrottleLimits = {
+  default: {
+    limit: 10,
+    ttl: seconds(60),
+  },
+};

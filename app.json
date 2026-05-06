@@ -1,0 +1,17 @@
+{
+  "apps": [
+    {
+      "name": "[APP]",
+      "script": "dist/main.js",
+      "instances": "1",
+      "exec_mode": "fork",
+      "max_size": "20M",
+      "retain": "5",
+      "compress": true,
+      "env": {
+        "NODE_ENV": "prod",
+        "PORT": 3400
+      }
+    }
+  ]
+}
