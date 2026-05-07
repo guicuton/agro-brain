@@ -160,6 +160,14 @@ Ao final:
 - API: <http://localhost:3000>
 - Documentação Swagger: <http://localhost:3000/docs>
 
+### LOGS
+
+O registro de logs da aplicação pode ser consultado diretamente vai docker com o comando abaixo
+
+```bash
+docker logs agro_brain_app --tail=100 -f
+```
+
 ## Documentação da API
 
 A documentação OpenAPI é gerada a partir dos DTOs e dos retornos dos controllers e exposta em `/docs`.
@@ -186,4 +194,5 @@ npm run test
 
 ## TODO / Roadmap
 
+- [ ] Testes E2E
 - [ ] Observabilidade externa via Prometheus/Grafana
