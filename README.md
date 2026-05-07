@@ -175,7 +175,7 @@ A documentação OpenAPI é gerada a partir dos DTOs e dos retornos dos controll
 Recursos disponíveis:
 
 - `POST /auth` — autenticação e emissão do JWT
-- `POST /auth/regsiter` — criaçãoo de usuário a partir de um usuário existente (Bearer)
+- `POST /auth/register` — criaçãoo de usuário a partir de um usuário existente (Bearer)
 - `PUT /auth/password` — atualização de senha (Bearer)
 - `POST/GET/PUT/DELETE /farm/owner` — gestão de produtores (Bearer)
 - `POST/GET/PUT/DELETE /farm/property` — gestão de propriedades (Bearer)
