@@ -1,6 +1,10 @@
-name: Pull Request Checks
+name: CI Checks
 
 on:
+  push:
+    branches:
+      - master
+      - main
   pull_request:
     branches:
       - master
