@@ -8,6 +8,7 @@ import {
   IFarmCropsGetOnePromise,
   IFarmCropsSoftDeleteParams,
   IFarmCropsSoftDeletePromise,
+  IFarmCropsStatsPromise,
   IFarmCropsUpdateParams,
   IFarmCropsUpdatePromise,
 } from './repository.interface';
@@ -123,6 +124,34 @@ export class FarmCropsRepository {
       .catch((err) => this.repository.errorHandler(err));
 
     if (promise) return promise;
+  }
+
+  async getStats(): Promise<IFarmCropsStatsPromise> {
+    const grouped = await this.repository.farm_crops
+      .groupBy({
+        by: ['alias'],
+        where: { deleted: false },
+        _count: { _all: true },
+        _sum: { area_arable: true },
+      })
+      .catch((err) => this.repository.errorHandler(err));
+
+    const rows = grouped ?? [];
+
+    let total_crops = 0;
+    let total_area_arable = 0;
+    const crops: { alias: string; area_arable: number }[] = [];
+
+    for (const row of rows) {
+      const count = row._count?._all ?? 0;
+      const area = row._sum?.area_arable ?? 0;
+
+      total_crops += count;
+      total_area_arable += area;
+      crops.push({ alias: row.alias, area_arable: area });
+    }
+
+    return { total_crops, total_area_arable, crops };
   }
 
   async createMany(

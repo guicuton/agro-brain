@@ -47,6 +47,17 @@ export interface IFarmCropsGetOneParams {
   id: string;
 }
 
+export interface IFarmCropsStatsByAlias {
+  alias: string;
+  area_arable: number;
+}
+
+export interface IFarmCropsStatsPromise {
+  total_crops: number;
+  total_area_arable: number;
+  crops: IFarmCropsStatsByAlias[];
+}
+
 export interface IFarmCropsGetOnePromise {
   id: string;
   alias: string;

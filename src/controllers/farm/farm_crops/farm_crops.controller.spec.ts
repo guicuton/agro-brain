@@ -41,6 +41,7 @@ describe('FarmCropsController', () => {
       getOneById: jest.fn(),
       updateOneById: jest.fn(),
       softDeleteById: jest.fn(),
+      getStats: jest.fn(),
     } as any;
 
     const module: TestingModule = await Test.createTestingModule({
@@ -155,6 +156,32 @@ describe('FarmCropsController', () => {
       controllerService.softDeleteById.mockRejectedValue(error);
 
       await expect(controller.softDelete(user, ip, param)).rejects.toBe(error);
+    });
+  });
+
+  describe('getStats', () => {
+    it('should delegate to controllerService.getStats and return its result', async () => {
+      const expected = {
+        total_crops: 2,
+        total_area_arable: 100,
+        crops: [
+          { alias: 'pepino', area_arable: 50 },
+          { alias: 'batata', area_arable: 50 },
+        ],
+      };
+      controllerService.getStats.mockResolvedValue(expected);
+
+      const result = await controller.getStats();
+
+      expect(controllerService.getStats).toHaveBeenCalledTimes(1);
+      expect(result).toBe(expected);
+    });
+
+    it('should propagate errors thrown by controllerService.getStats', async () => {
+      const error = new Error('stats failed');
+      controllerService.getStats.mockRejectedValue(error);
+
+      await expect(controller.getStats()).rejects.toBe(error);
     });
   });
 });

@@ -2,6 +2,7 @@ import {
   FarmCropsService,
   IFarmCropsCreatePromise,
   IFarmCropsGetOnePromise,
+  IFarmCropsStatsPromise,
   IFarmCropsUpdatePromise,
 } from '@app/farm';
 import { LoggerService } from '@app/logger';
@@ -81,5 +82,9 @@ export class FarmCropsControllerService {
     }
 
     return serviceResult;
+  }
+
+  async getStats(): Promise<IFarmCropsStatsPromise> {
+    return await this.farmCropsService.getStats();
   }
 }

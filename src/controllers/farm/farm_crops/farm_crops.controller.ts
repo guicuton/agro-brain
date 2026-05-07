@@ -3,6 +3,7 @@ import { JwtAuthGuard } from '@app/auth';
 import {
   IFarmCropsCreatePromise,
   IFarmCropsGetOnePromise,
+  IFarmCropsStatsPromise,
   IFarmCropsUpdatePromise,
 } from '@app/farm';
 import {
@@ -29,6 +30,7 @@ import {
   IFarmCropsBulkCreateDTO,
   IFarmCropsCreateResponseDTO,
   IFarmCropsGetOneResponseDTO,
+  IFarmCropsStatsResponseDTO,
   IFarmCropsUpdateDTO,
   IFarmCropsUpdateResponseDTO,
   IFarmIdDto,
@@ -62,6 +64,22 @@ export class FarmCropsController {
     @Body() body: IFarmCropsBulkCreateDTO,
   ): Promise<IFarmCropsCreatePromise[]> {
     return await this.controllerService.createMany({ user, body, ip });
+  }
+
+  @ApiOperation({
+    summary: 'Get aggregated crop stats',
+    description:
+      'Returns the consolidated count of crops and the consolidated sum of area_arable, both grouped by alias.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Stats returned.',
+    type: IFarmCropsStatsResponseDTO,
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  @Get('crops/stats')
+  async getStats(): Promise<IFarmCropsStatsPromise> {
+    return await this.controllerService.getStats();
   }
 
   @ApiOperation({

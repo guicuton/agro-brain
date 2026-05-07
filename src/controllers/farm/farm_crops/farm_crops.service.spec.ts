@@ -57,6 +57,7 @@ describe('FarmCropsControllerService', () => {
             softDeleteById: jest.fn(),
             updateOneById: jest.fn(),
             createMany: jest.fn(),
+            getStats: jest.fn(),
           },
         },
       ],
@@ -205,6 +206,32 @@ describe('FarmCropsControllerService', () => {
         controllerService.createMany({ user, ip, body }),
       ).rejects.toBe(error);
       expect(logger.log).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('getStats', () => {
+    it('should delegate to farmCropsService.getStats and return its result', async () => {
+      const expected = {
+        total_crops: 2,
+        total_area_arable: 100,
+        crops: [
+          { alias: 'pepino', area_arable: 50 },
+          { alias: 'batata', area_arable: 50 },
+        ],
+      };
+      farmCropsService.getStats.mockResolvedValue(expected);
+
+      const result = await controllerService.getStats();
+
+      expect(farmCropsService.getStats).toHaveBeenCalledTimes(1);
+      expect(result).toBe(expected);
+    });
+
+    it('should propagate errors thrown by farmCropsService.getStats', async () => {
+      const error = new Error('stats failed');
+      farmCropsService.getStats.mockRejectedValue(error);
+
+      await expect(controllerService.getStats()).rejects.toBe(error);
     });
   });
 });

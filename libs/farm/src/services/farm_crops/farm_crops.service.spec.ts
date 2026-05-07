@@ -22,6 +22,7 @@ describe('FarmCropsService', () => {
           useValue: {
             get: jest.fn(),
             set: jest.fn(),
+            delete: jest.fn(),
             deleteCollection: jest.fn(),
           },
         },
@@ -32,6 +33,7 @@ describe('FarmCropsService', () => {
             softDeleteById: jest.fn(),
             updateOneById: jest.fn(),
             createMany: jest.fn(),
+            getStats: jest.fn(),
           },
         },
         {
@@ -88,7 +90,7 @@ describe('FarmCropsService', () => {
   });
 
   describe('softDeleteById', () => {
-    it('should soft delete, clear 4 caches and return only the id', async () => {
+    it('should soft delete, clear 4 caches plus stats and return only the id', async () => {
       const repoResult = {
         id: uuid,
         owner_id: uuid,
@@ -101,6 +103,7 @@ describe('FarmCropsService', () => {
 
       expect(cache.deleteCollection).toHaveBeenCalledTimes(4);
       expect(cache.deleteCollection).toHaveBeenCalledWith(`${uuid}:*`);
+      expect(cache.delete).toHaveBeenCalledWith(['all:farmCropsStats']);
       expect(result).toEqual({ id: uuid });
     });
 
@@ -114,7 +117,7 @@ describe('FarmCropsService', () => {
   });
 
   describe('updateOneById', () => {
-    it('should merge data with id and clear 4 caches', async () => {
+    it('should merge data with id and clear 4 caches plus stats', async () => {
       const data = { alias: 'milho' } as any;
       const repoResult = {
         id: uuid,
@@ -131,6 +134,7 @@ describe('FarmCropsService', () => {
         id: uuid,
       });
       expect(cache.deleteCollection).toHaveBeenCalledTimes(4);
+      expect(cache.delete).toHaveBeenCalledWith(['all:farmCropsStats']);
       expect(result).toBe(repoResult);
     });
 
@@ -174,6 +178,7 @@ describe('FarmCropsService', () => {
         { ...data[0], created_at: expect.any(Date) },
       ]);
       expect(cache.deleteCollection).toHaveBeenCalled();
+      expect(cache.delete).toHaveBeenCalledWith(['all:farmCropsStats']);
       expect(result).toBe(expected);
     });
 
@@ -200,6 +205,46 @@ describe('FarmCropsService', () => {
       const result = await service.createMany({ data });
 
       expect(cropsRepository.createMany).toHaveBeenCalled();
+      expect(result).toBe(expected);
+    });
+  });
+
+  describe('getStats', () => {
+    const expected = {
+      total_crops: 2,
+      total_area_arable: 100,
+      crops: [
+        { alias: 'pepino', area_arable: 50 },
+        { alias: 'batata', area_arable: 50 },
+      ],
+    };
+
+    it('should return cached stats without hitting the repository', async () => {
+      cache.get.mockResolvedValue(expected);
+
+      const result = await service.getStats();
+
+      expect(cache.get).toHaveBeenCalledWith({
+        key: 'all',
+        item: 'farmCropsStats',
+      });
+      expect(cropsRepository.getStats).not.toHaveBeenCalled();
+      expect(result).toBe(expected);
+    });
+
+    it('should query repository and set cache on miss', async () => {
+      cache.get.mockResolvedValue(undefined);
+      cropsRepository.getStats.mockResolvedValue(expected);
+
+      const result = await service.getStats();
+
+      expect(cropsRepository.getStats).toHaveBeenCalledTimes(1);
+      expect(cache.set).toHaveBeenCalledWith({
+        key: 'all',
+        item: 'farmCropsStats',
+        data: expected,
+        ttl: DEFAULT_TTL.five,
+      });
       expect(result).toBe(expected);
     });
   });

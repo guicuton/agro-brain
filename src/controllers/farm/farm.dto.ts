@@ -1,6 +1,8 @@
 import {
   IFarmCropsCreatePromise,
   IFarmCropsGetOnePromise,
+  IFarmCropsStatsByAlias,
+  IFarmCropsStatsPromise,
   IFarmCropsUpdatePromise,
   IFarmHarvestCreatePromise,
   IFarmHarvestGetOnePromise,
@@ -1039,4 +1041,23 @@ export class IFarmCropsGetOneResponseDTO implements IFarmCropsGetOnePromise {
 
   @ApiProperty({ type: () => IFarmHarvestSummaryDTO })
   harvest: IFarmHarvestSummaryDTO;
+}
+
+class IFarmCropsStatsByAliasDTO implements IFarmCropsStatsByAlias {
+  @ApiProperty({ example: 'pepino' })
+  alias: string;
+
+  @ApiProperty({ example: 50 })
+  area_arable: number;
+}
+
+export class IFarmCropsStatsResponseDTO implements IFarmCropsStatsPromise {
+  @ApiProperty({ example: 2 })
+  total_crops: number;
+
+  @ApiProperty({ example: 100 })
+  total_area_arable: number;
+
+  @ApiProperty({ type: () => IFarmCropsStatsByAliasDTO, isArray: true })
+  crops: IFarmCropsStatsByAliasDTO[];
 }

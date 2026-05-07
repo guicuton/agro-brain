@@ -17,6 +17,7 @@ describe('FarmCropsRepository', () => {
       farm_crops: {
         findFirst: jest.fn(),
         update: jest.fn(),
+        groupBy: jest.fn(),
       },
       errorHandler: jest.fn(),
       $transaction: jest.fn((cb: any) => cb({ farm_crops: txFarmCrops })),
@@ -95,6 +96,60 @@ describe('FarmCropsRepository', () => {
           property_id: true,
           harvest_id: true,
         },
+      });
+    });
+  });
+
+  describe('getStats', () => {
+    it('should aggregate count and area_arable grouped by alias', async () => {
+      database.farm_crops.groupBy.mockResolvedValue([
+        { alias: 'pepino', _count: { _all: 1 }, _sum: { area_arable: 50 } },
+        { alias: 'batata', _count: { _all: 1 }, _sum: { area_arable: 50 } },
+      ]);
+
+      const result = await repository.getStats();
+
+      expect(database.farm_crops.groupBy).toHaveBeenCalledWith({
+        by: ['alias'],
+        where: { deleted: false },
+        _count: { _all: true },
+        _sum: { area_arable: true },
+      });
+      expect(result).toEqual({
+        total_crops: 2,
+        total_area_arable: 100,
+        crops: [
+          { alias: 'pepino', area_arable: 50 },
+          { alias: 'batata', area_arable: 50 },
+        ],
+      });
+    });
+
+    it('should default sums to 0 when prisma returns null aggregates', async () => {
+      database.farm_crops.groupBy.mockResolvedValue([
+        { alias: 'pepino', _count: { _all: 0 }, _sum: { area_arable: null } },
+      ]);
+
+      const result = await repository.getStats();
+
+      expect(result).toEqual({
+        total_crops: 0,
+        total_area_arable: 0,
+        crops: [{ alias: 'pepino', area_arable: 0 }],
+      });
+    });
+
+    it('should return zeroed totals and empty array when prisma throws', async () => {
+      const error = new Error('boom');
+      database.farm_crops.groupBy.mockRejectedValue(error);
+
+      const result = await repository.getStats();
+
+      expect(database.errorHandler).toHaveBeenCalledWith(error);
+      expect(result).toEqual({
+        total_crops: 0,
+        total_area_arable: 0,
+        crops: [],
       });
     });
   });

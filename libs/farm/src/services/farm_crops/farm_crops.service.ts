@@ -13,6 +13,7 @@ import {
   IFarmCropsGetOnePromise,
   IFarmCropsSoftDeleteParams,
   IFarmCropsSoftDeletePromise,
+  IFarmCropsStatsPromise,
   IFarmCropsUpdateParams,
   IFarmCropsUpdatePromise,
 } from './farm_crops.interface';
@@ -21,6 +22,8 @@ import { IFarmCropsDTO } from '../../../../../src/controllers/farm/farm.dto';
 @Injectable()
 export class FarmCropsService {
   private readonly cacheItem = 'farmCrops';
+  private readonly cacheItemStats = 'farmCropsStats';
+  private readonly cacheKeyStats = 'all';
 
   constructor(
     private readonly cache: CacheModuleServices,
@@ -76,6 +79,7 @@ export class FarmCropsService {
         this.clearCache(repositoryResult.harvest_id),
         this.clearCache(repositoryResult.property_id),
         this.clearCache(repositoryResult.owner_id),
+        this.cache.delete([`${this.cacheKeyStats}:${this.cacheItemStats}`]),
       ]);
       return { id: repositoryResult.id };
     }
@@ -98,6 +102,7 @@ export class FarmCropsService {
         this.clearCache(repositoryResult.harvest_id),
         this.clearCache(repositoryResult.property_id),
         this.clearCache(repositoryResult.owner_id),
+        this.cache.delete([`${this.cacheKeyStats}:${this.cacheItemStats}`]),
       ]);
       return repositoryResult;
     }
@@ -147,6 +152,7 @@ export class FarmCropsService {
       ...Array.from(harvestIds).map((id) => this.clearCache(id)),
       ...Array.from(propertyIds).map((id) => this.clearCache(id)),
       ...Array.from(ownerIds).map((id) => this.clearCache(id)),
+      this.cache.delete([`${this.cacheKeyStats}:${this.cacheItemStats}`]),
     ]);
 
     await this.areaArableValidation(data);
@@ -157,6 +163,26 @@ export class FarmCropsService {
         created_at: new Date(),
       })),
     );
+
+    return repositoryResult;
+  }
+
+  async getStats(): Promise<IFarmCropsStatsPromise> {
+    const cached = await this.cache.get<IFarmCropsStatsPromise>({
+      key: this.cacheKeyStats,
+      item: this.cacheItemStats,
+    });
+
+    if (cached) return cached;
+
+    const repositoryResult = await this.farmCropsRepository.getStats();
+
+    await this.cache.set({
+      key: this.cacheKeyStats,
+      item: this.cacheItemStats,
+      data: repositoryResult,
+      ttl: DEFAULT_TTL.five,
+    });
 
     return repositoryResult;
   }
