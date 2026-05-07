@@ -141,8 +141,6 @@ A documentação Swagger lista todos os endpoints, schemas de input/output e os 
 
 Em produção tudo roda em containers via `docker` + `docker-compose`. Após preparar o `configurations/envs/.env.prod`, execute na raiz do projeto:
 
-> **Importante:** Para o HOST do Postgres e Redis utilize o nome do serviço indicado no parametro container_name do docker-compose.yml
-
 ```bash
 docker compose --env-file configurations/envs/.env.prod up --build -d
 ```
@@ -154,6 +152,8 @@ O `docker-compose.yml` orquestra os seguintes serviços, na ordem correta:
 3. **migration** — roda `npm run migration:deploy:prod` e finaliza
 4. **seed** — depende de `migration` e roda `npm run migration:seed:prod`
 5. **app** — sobe a API com `pm2-runtime` (porta `3000`)
+
+> **Importante:** Para o HOST do Postgres e Redis utilize o nome do serviço indicado no parametro container_name do docker-compose.yml
 
 Ao final:
 
