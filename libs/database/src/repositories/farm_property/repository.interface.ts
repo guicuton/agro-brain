@@ -135,3 +135,19 @@ export interface IFarmPropertySearchPromise {
   created_at: Date;
   updated_at: Date;
 }
+
+export interface IFarmPropertyStatsByState {
+  state: string;
+  value: number;
+}
+
+export interface IFarmPropertyStatsPromise {
+  properties: {
+    total: number;
+    states: IFarmPropertyStatsByState[];
+  };
+  properties_areas: {
+    total: number;
+    states: IFarmPropertyStatsByState[];
+  };
+}

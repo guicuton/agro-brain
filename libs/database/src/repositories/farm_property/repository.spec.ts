@@ -19,6 +19,7 @@ describe('FarmPropertyRepository', () => {
         findFirst: jest.fn(),
         findMany: jest.fn(),
         update: jest.fn(),
+        groupBy: jest.fn(),
       },
       errorHandler: jest.fn(),
       $transaction: jest.fn((cb: any) => cb({ farm_property: txFarmProperty })),
@@ -238,6 +239,66 @@ describe('FarmPropertyRepository', () => {
 
       expect(database.errorHandler).toHaveBeenCalledWith(error);
       expect(result).toEqual([]);
+    });
+  });
+
+  describe('getStats', () => {
+    it('should aggregate count and area_total grouped by state', async () => {
+      database.farm_property.groupBy.mockResolvedValue([
+        { state: 'sp', _count: { _all: 20 }, _sum: { area_total: 1500 } },
+        { state: 'mg', _count: { _all: 80 }, _sum: { area_total: 3500 } },
+      ]);
+
+      const result = await repository.getStats();
+
+      expect(database.farm_property.groupBy).toHaveBeenCalledWith({
+        by: ['state'],
+        where: { deleted: false },
+        _count: { _all: true },
+        _sum: { area_total: true },
+      });
+      expect(result).toEqual({
+        properties: {
+          total: 100,
+          states: [
+            { state: 'sp', value: 20 },
+            { state: 'mg', value: 80 },
+          ],
+        },
+        properties_areas: {
+          total: 5000,
+          states: [
+            { state: 'sp', value: 1500 },
+            { state: 'mg', value: 3500 },
+          ],
+        },
+      });
+    });
+
+    it('should default sums to 0 when prisma returns null aggregates', async () => {
+      database.farm_property.groupBy.mockResolvedValue([
+        { state: 'sp', _count: { _all: 0 }, _sum: { area_total: null } },
+      ]);
+
+      const result = await repository.getStats();
+
+      expect(result).toEqual({
+        properties: { total: 0, states: [{ state: 'sp', value: 0 }] },
+        properties_areas: { total: 0, states: [{ state: 'sp', value: 0 }] },
+      });
+    });
+
+    it('should return zeroed totals and empty arrays when prisma throws', async () => {
+      const error = new Error('boom');
+      database.farm_property.groupBy.mockRejectedValue(error);
+
+      const result = await repository.getStats();
+
+      expect(database.errorHandler).toHaveBeenCalledWith(error);
+      expect(result).toEqual({
+        properties: { total: 0, states: [] },
+        properties_areas: { total: 0, states: [] },
+      });
     });
   });
 });

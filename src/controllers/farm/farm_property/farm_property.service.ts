@@ -4,6 +4,7 @@ import {
   IFarmPropertyGetOnePromise,
   IFarmPropertyGetRelationsPromise,
   IFarmPropertySearchPromise,
+  IFarmPropertyStatsPromise,
   IFarmPropertyUpdatePromise,
 } from '@app/farm';
 import { LoggerService } from '@app/logger';
@@ -107,5 +108,9 @@ export class FarmPropertyControllerService {
     const serviceResult = await this.farmPropertyService.search(query);
 
     return serviceResult;
+  }
+
+  async getStats(): Promise<IFarmPropertyStatsPromise> {
+    return await this.farmPropertyService.getStats();
   }
 }

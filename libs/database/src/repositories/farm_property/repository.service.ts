@@ -14,6 +14,8 @@ import {
   IFarmPropertySearchPromise,
   IFarmPropertySoftDeleteParams,
   IFarmPropertySoftDeletePromise,
+  IFarmPropertyStatsByState,
+  IFarmPropertyStatsPromise,
   IFarmPropertyUpdateParams,
   IFarmPropertyUpdatePromise,
 } from './repository.interface';
@@ -218,6 +220,38 @@ export class FarmPropertyRepository {
       }
       return created;
     });
+  }
+
+  async getStats(): Promise<IFarmPropertyStatsPromise> {
+    const grouped = await this.repository.farm_property
+      .groupBy({
+        by: ['state'],
+        where: { deleted: false },
+        _count: { _all: true },
+        _sum: { area_total: true },
+      })
+      .catch((err) => this.repository.errorHandler(err));
+
+    const rows = grouped ?? [];
+
+    const properties = { total: 0, states: [] as IFarmPropertyStatsByState[] };
+    const properties_areas = {
+      total: 0,
+      states: [] as IFarmPropertyStatsByState[],
+    };
+
+    for (const row of rows) {
+      const count = row._count?._all ?? 0;
+      const area = row._sum?.area_total ?? 0;
+
+      properties.total += count;
+      properties.states.push({ state: row.state, value: count });
+
+      properties_areas.total += area;
+      properties_areas.states.push({ state: row.state, value: area });
+    }
+
+    return { properties, properties_areas };
   }
 
   async findManyDynamic(

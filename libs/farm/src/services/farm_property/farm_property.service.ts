@@ -15,6 +15,7 @@ import {
   IFarmPropertyGetRelationsPromise,
   IFarmPropertySoftDeleteParams,
   IFarmPropertySoftDeletePromise,
+  IFarmPropertyStatsPromise,
   IFarmPropertyUpdateParams,
   IFarmPropertyUpdatePromise,
 } from './farm_property.interface';
@@ -23,6 +24,8 @@ import {
 export class FarmPropertyService {
   private readonly cacheItem = 'farmProperty';
   private readonly cacheItemRelations = 'farmPropertyRelations';
+  private readonly cacheItemStats = 'farmPropertyStats';
+  private readonly cacheKeyStats = 'all';
 
   constructor(
     private readonly cache: CacheModuleServices,
@@ -104,7 +107,10 @@ export class FarmPropertyService {
     });
 
     if (repositoryResult) {
-      await this.clearCache(repositoryResult.id);
+      await Promise.all([
+        this.clearCache(repositoryResult.id),
+        this.cache.delete([`${this.cacheKeyStats}:${this.cacheItemStats}`]),
+      ]);
       return repositoryResult;
     }
 
@@ -121,7 +127,11 @@ export class FarmPropertyService {
     });
 
     if (repositoryResult) {
-      await this.clearCache(repositoryResult.id);
+      await Promise.all([
+        this.clearCache(repositoryResult.id),
+        this.cache.delete([`${this.cacheKeyStats}:${this.cacheItemStats}`]),
+      ]);
+
       return repositoryResult;
     }
 
@@ -143,6 +153,7 @@ export class FarmPropertyService {
     const ownerIds = new Set(data.map((item) => item.owner_id));
     await Promise.all([
       ...Array.from(ownerIds).map((id) => this.clearCache(id)),
+      this.cache.delete([`${this.cacheKeyStats}:${this.cacheItemStats}`]),
     ]);
 
     return repositoryResult;
@@ -152,5 +163,25 @@ export class FarmPropertyService {
     params: IFarmPropertySearchParams,
   ): Promise<IFarmPropertySearchPromise[]> {
     return await this.farmPropertyRepository.findManyDynamic(params);
+  }
+
+  async getStats(): Promise<IFarmPropertyStatsPromise> {
+    const cached = await this.cache.get<IFarmPropertyStatsPromise>({
+      key: this.cacheKeyStats,
+      item: this.cacheItemStats,
+    });
+
+    if (cached) return cached;
+
+    const repositoryResult = await this.farmPropertyRepository.getStats();
+
+    await this.cache.set({
+      key: this.cacheKeyStats,
+      item: this.cacheItemStats,
+      data: repositoryResult,
+      ttl: DEFAULT_TTL.five,
+    });
+
+    return repositoryResult;
   }
 }

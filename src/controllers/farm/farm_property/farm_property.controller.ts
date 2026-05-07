@@ -5,6 +5,7 @@ import {
   IFarmPropertyGetOnePromise,
   IFarmPropertyGetRelationsPromise,
   IFarmPropertySearchPromise,
+  IFarmPropertyStatsPromise,
   IFarmPropertyUpdatePromise,
 } from '@app/farm';
 import {
@@ -37,6 +38,7 @@ import {
   IFarmPropertyGetRelationsResponseDTO,
   IFarmPropertySearchDTO,
   IFarmPropertySearchResponseDTO,
+  IFarmPropertyStatsResponseDTO,
   IFarmPropertyUpdateDTO,
   IFarmPropertyUpdateResponseDTO,
 } from '../farm.dto';
@@ -122,6 +124,22 @@ export class FarmPropertyController {
     @Query() query: IFarmPropertySearchDTO,
   ): Promise<IFarmPropertySearchPromise[]> {
     return await this.controllerService.search({ query });
+  }
+
+  @ApiOperation({
+    summary: 'Get aggregated property stats',
+    description:
+      'Returns the consolidated count of properties and the consolidated sum of area_total, both grouped by state.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Stats returned.',
+    type: IFarmPropertyStatsResponseDTO,
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  @Get('property/stats')
+  async getStats(): Promise<IFarmPropertyStatsPromise> {
+    return await this.controllerService.getStats();
   }
 
   @ApiOperation({

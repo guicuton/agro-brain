@@ -15,6 +15,8 @@ import {
   IFarmPropertyGetOnePromise,
   IFarmPropertyGetRelationsPromise,
   IFarmPropertySearchPromise,
+  IFarmPropertyStatsByState,
+  IFarmPropertyStatsPromise,
   IFarmPropertyUpdatePromise,
 } from '@app/farm';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
@@ -927,6 +929,30 @@ export class IFarmPropertyGetRelationsResponseDTO implements IFarmPropertyGetRel
 
   @ApiProperty({ example: 9 })
   crops: number;
+}
+
+class IFarmPropertyStatsByStateDTO implements IFarmPropertyStatsByState {
+  @ApiProperty({ example: 'sp' })
+  state: string;
+
+  @ApiProperty({ example: 20 })
+  value: number;
+}
+
+class IFarmPropertyStatsBucketDTO {
+  @ApiProperty({ example: 100 })
+  total: number;
+
+  @ApiProperty({ type: () => IFarmPropertyStatsByStateDTO, isArray: true })
+  states: IFarmPropertyStatsByStateDTO[];
+}
+
+export class IFarmPropertyStatsResponseDTO implements IFarmPropertyStatsPromise {
+  @ApiProperty({ type: () => IFarmPropertyStatsBucketDTO })
+  properties: IFarmPropertyStatsBucketDTO;
+
+  @ApiProperty({ type: () => IFarmPropertyStatsBucketDTO })
+  properties_areas: IFarmPropertyStatsBucketDTO;
 }
 
 export class IFarmHarvestCreateResponseDTO implements IFarmHarvestCreatePromise {

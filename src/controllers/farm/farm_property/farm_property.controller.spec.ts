@@ -51,6 +51,7 @@ describe('FarmPropertyController', () => {
       updateOneById: jest.fn(),
       softDeleteById: jest.fn(),
       search: jest.fn(),
+      getStats: jest.fn(),
     } as any;
 
     const module: TestingModule = await Test.createTestingModule({
@@ -238,6 +239,40 @@ describe('FarmPropertyController', () => {
       controllerService.search.mockRejectedValue(error);
 
       await expect(controller.search(query)).rejects.toBe(error);
+    });
+  });
+
+  describe('getStats', () => {
+    it('should delegate to controllerService.getStats and return its result', async () => {
+      const expected = {
+        properties: {
+          total: 100,
+          states: [
+            { state: 'sp', value: 20 },
+            { state: 'mg', value: 80 },
+          ],
+        },
+        properties_areas: {
+          total: 5000,
+          states: [
+            { state: 'sp', value: 1500 },
+            { state: 'mg', value: 3500 },
+          ],
+        },
+      };
+      controllerService.getStats.mockResolvedValue(expected);
+
+      const result = await controller.getStats();
+
+      expect(controllerService.getStats).toHaveBeenCalledTimes(1);
+      expect(result).toBe(expected);
+    });
+
+    it('should propagate errors thrown by controllerService.getStats', async () => {
+      const error = new Error('stats failed');
+      controllerService.getStats.mockRejectedValue(error);
+
+      await expect(controller.getStats()).rejects.toBe(error);
     });
   });
 });

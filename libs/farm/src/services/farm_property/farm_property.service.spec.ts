@@ -21,6 +21,7 @@ describe('FarmPropertyService', () => {
           useValue: {
             get: jest.fn(),
             set: jest.fn(),
+            delete: jest.fn(),
             deleteCollection: jest.fn(),
           },
         },
@@ -33,6 +34,7 @@ describe('FarmPropertyService', () => {
             updateOneById: jest.fn(),
             createMany: jest.fn(),
             findManyDynamic: jest.fn(),
+            getStats: jest.fn(),
           },
         },
       ],
@@ -127,13 +129,14 @@ describe('FarmPropertyService', () => {
   });
 
   describe('softDeleteById', () => {
-    it('should soft delete and clear the cache for the deleted id', async () => {
+    it('should soft delete and clear the cache for the deleted id and stats', async () => {
       const repoResult = { id: uuid };
       repository.softDeleteById.mockResolvedValue(repoResult);
 
       const result = await service.softDeleteById({ id: uuid });
 
       expect(cache.deleteCollection).toHaveBeenCalledWith(`${uuid}:*`);
+      expect(cache.delete).toHaveBeenCalledWith(['all:farmPropertyStats']);
       expect(result).toBe(repoResult);
     });
 
@@ -147,7 +150,7 @@ describe('FarmPropertyService', () => {
   });
 
   describe('updateOneById', () => {
-    it('should merge data with id and clear the cache', async () => {
+    it('should merge data with id and clear the property and stats caches', async () => {
       const data = { alias: 'fazenda nova' };
       const repoResult = { id: uuid };
       repository.updateOneById.mockResolvedValue(repoResult);
@@ -159,6 +162,7 @@ describe('FarmPropertyService', () => {
         id: uuid,
       });
       expect(cache.deleteCollection).toHaveBeenCalledWith(`${uuid}:*`);
+      expect(cache.delete).toHaveBeenCalledWith(['all:farmPropertyStats']);
       expect(result).toBe(repoResult);
     });
 
@@ -172,7 +176,7 @@ describe('FarmPropertyService', () => {
   });
 
   describe('createMany', () => {
-    it('should add created_at to each item, persist via repository and clear cache for each unique owner', async () => {
+    it('should add created_at to each item, persist via repository and clear cache for each unique owner and stats', async () => {
       const data = [
         { owner_id: uuid, alias: 'a' },
         { owner_id: uuid, alias: 'b' },
@@ -188,6 +192,7 @@ describe('FarmPropertyService', () => {
       ]);
       expect(cache.deleteCollection).toHaveBeenCalledTimes(1);
       expect(cache.deleteCollection).toHaveBeenCalledWith(`${uuid}:*`);
+      expect(cache.delete).toHaveBeenCalledWith(['all:farmPropertyStats']);
       expect(result).toBe(expected);
     });
   });
@@ -230,6 +235,54 @@ describe('FarmPropertyService', () => {
       repository.findManyDynamic.mockRejectedValue(error);
 
       await expect(service.search({ alias: 'john' })).rejects.toBe(error);
+    });
+  });
+
+  describe('getStats', () => {
+    const expected = {
+      properties: {
+        total: 100,
+        states: [
+          { state: 'sp', value: 20 },
+          { state: 'mg', value: 80 },
+        ],
+      },
+      properties_areas: {
+        total: 5000,
+        states: [
+          { state: 'sp', value: 1500 },
+          { state: 'mg', value: 3500 },
+        ],
+      },
+    };
+
+    it('should return cached stats without hitting the repository', async () => {
+      cache.get.mockResolvedValue(expected);
+
+      const result = await service.getStats();
+
+      expect(cache.get).toHaveBeenCalledWith({
+        key: 'all',
+        item: 'farmPropertyStats',
+      });
+      expect(repository.getStats).not.toHaveBeenCalled();
+      expect(result).toBe(expected);
+    });
+
+    it('should query repository and set cache on miss', async () => {
+      cache.get.mockResolvedValue(undefined);
+      repository.getStats.mockResolvedValue(expected);
+
+      const result = await service.getStats();
+
+      expect(repository.getStats).toHaveBeenCalledTimes(1);
+      expect(cache.set).toHaveBeenCalledWith({
+        key: 'all',
+        item: 'farmPropertyStats',
+        data: expected,
+        ttl: DEFAULT_TTL.five,
+      });
+      expect(result).toBe(expected);
     });
   });
 });
