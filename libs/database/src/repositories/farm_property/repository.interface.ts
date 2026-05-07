@@ -106,3 +106,32 @@ export interface IFarmPropertyGetOnePromise {
     }>;
   }>;
 }
+
+export interface IFarmPropertySearchParams {
+  alias?: string;
+  owner_id?: string;
+  area_total?: number;
+  area_arable?: number;
+  area_vegetation?: number;
+  city?: string;
+  state?: string;
+}
+
+export interface IFarmPropertySearchPromise {
+  id: string;
+  owner: {
+    id: string;
+    fullname: string;
+  };
+  alias: string;
+  area_total: number;
+  area_arable: number;
+  area_vegetation: number;
+  area_type: string;
+  city: string;
+  state: string;
+  country: string;
+  metadata: Prisma.JsonValue | null;
+  created_at: Date;
+  updated_at: Date;
+}

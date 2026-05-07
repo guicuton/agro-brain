@@ -10,6 +10,8 @@ import {
   IFarmPropertyGetOnePromise,
   IFarmPropertyGetRelationsParams,
   IFarmPropertyGetRelationsPromise,
+  IFarmPropertySearchParams,
+  IFarmPropertySearchPromise,
   IFarmPropertySoftDeleteParams,
   IFarmPropertySoftDeletePromise,
   IFarmPropertyUpdateParams,
@@ -216,5 +218,57 @@ export class FarmPropertyRepository {
       }
       return created;
     });
+  }
+
+  async findManyDynamic(
+    params: IFarmPropertySearchParams,
+  ): Promise<IFarmPropertySearchPromise[]> {
+    const {
+      alias,
+      area_arable,
+      area_total,
+      area_vegetation,
+      owner_id,
+      city,
+      state,
+    } = params;
+    const promise = await this.repository.farm_property
+      .findMany({
+        where: {
+          deleted: false,
+          ...(alias && {
+            alias: { contains: alias, mode: 'insensitive' },
+          }),
+          ...(owner_id && { owner_id }),
+          ...(area_total && { area_total: { gte: area_total } }),
+          ...(area_arable && { area_arable: { gte: area_arable } }),
+          ...(area_vegetation && { area_vegetation: { gte: area_vegetation } }),
+          ...(city && { city: { contains: city, mode: 'insensitive' } }),
+          ...(state && { state: { contains: state, mode: 'insensitive' } }),
+        },
+        select: {
+          id: true,
+          owner: {
+            select: {
+              id: true,
+              fullname: true,
+            },
+          },
+          alias: true,
+          area_total: true,
+          area_arable: true,
+          area_vegetation: true,
+          area_type: true,
+          city: true,
+          state: true,
+          country: true,
+          metadata: true,
+          created_at: true,
+          updated_at: true,
+        },
+      })
+      .catch((err) => this.repository.errorHandler(err));
+
+    return promise ?? [];
   }
 }

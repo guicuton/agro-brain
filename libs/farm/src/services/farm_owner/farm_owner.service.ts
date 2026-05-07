@@ -142,6 +142,6 @@ export class FarmOwnerService {
   async search(
     params: IFarmOwnerSearchParams,
   ): Promise<IFarmOwnerSearchPromise[]> {
-    return await this.farmOwnerRepository.search(params);
+    return await this.farmOwnerRepository.findManyDynamic(params);
   }
 }

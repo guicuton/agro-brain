@@ -70,6 +70,10 @@ export interface IFarmPropertyGetRelationsParams {
   param: IFarmIdDto;
 }
 
+export interface IFarmPropertySearchParams {
+  query: IFarmOwnerSearchDTO;
+}
+
 export interface IFarmHarvestCreateManyParams {
   user: IAuthenticatedUser;
   body: IFarmHarvestBulkCreateDTO;

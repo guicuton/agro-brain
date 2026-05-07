@@ -4,6 +4,7 @@ import {
   IFarmPropertyCreatePromise,
   IFarmPropertyGetOnePromise,
   IFarmPropertyGetRelationsPromise,
+  IFarmPropertySearchPromise,
   IFarmPropertyUpdatePromise,
 } from '@app/farm';
 import {
@@ -15,6 +16,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -22,6 +24,7 @@ import {
   ApiBody,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -32,6 +35,8 @@ import {
   IFarmPropertyCreateResponseDTO,
   IFarmPropertyGetOneResponseDTO,
   IFarmPropertyGetRelationsResponseDTO,
+  IFarmPropertySearchDTO,
+  IFarmPropertySearchResponseDTO,
   IFarmPropertyUpdateDTO,
   IFarmPropertyUpdateResponseDTO,
 } from '../farm.dto';
@@ -66,6 +71,57 @@ export class FarmPropertyController {
     @Body() body: IFarmPropertyBulkCreateDTO,
   ): Promise<IFarmPropertyCreatePromise[]> {
     return await this.controllerService.createMany({ user, body, ip });
+  }
+
+  @ApiOperation({
+    summary: 'Search farm properties',
+    description:
+      'Performs a partial, case-insensitive search by alias, owner_id, city and/or state and areas. Only the provided query parameters are used as filters.',
+  })
+  @ApiQuery({
+    name: 'alias',
+    required: false,
+    type: String,
+    example: 'fazenda joao',
+  })
+  @ApiQuery({
+    name: 'owner_id',
+    format: 'uuid',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'area_total',
+    required: false,
+    type: Number,
+    example: 100,
+  })
+  @ApiQuery({
+    name: 'area_arable',
+    required: false,
+    type: Number,
+    example: 100,
+  })
+  @ApiQuery({
+    name: 'area_vegetation',
+    required: false,
+    type: Number,
+    example: 100,
+  })
+  @ApiQuery({ name: 'city', required: false, type: String, example: 'sao' })
+  @ApiQuery({ name: 'state', required: false, type: String, example: 'sp' })
+  @ApiResponse({
+    status: 200,
+    description: 'Matching properties.',
+    type: IFarmPropertySearchResponseDTO,
+    isArray: true,
+  })
+  @ApiResponse({ status: 400, description: 'Validation error.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  @Get('property/search')
+  async search(
+    @Query() query: IFarmPropertySearchDTO,
+  ): Promise<IFarmPropertySearchPromise[]> {
+    return await this.controllerService.search({ query });
   }
 
   @ApiOperation({

@@ -184,6 +184,4 @@ npm run test
 
 ## TODO / Roadmap
 
-- [ ] Paginação nos endpoints de busca
-- [ ] Buscas dinâmicas por parâmetros (`city`, `state`, `area`, etc.)
 - [ ] Observabilidade externa via Prometheus/Grafana

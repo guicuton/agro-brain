@@ -32,6 +32,7 @@ describe('FarmPropertyService', () => {
             softDeleteById: jest.fn(),
             updateOneById: jest.fn(),
             createMany: jest.fn(),
+            findManyDynamic: jest.fn(),
           },
         },
       ],
@@ -188,6 +189,47 @@ describe('FarmPropertyService', () => {
       expect(cache.deleteCollection).toHaveBeenCalledTimes(1);
       expect(cache.deleteCollection).toHaveBeenCalledWith(`${uuid}:*`);
       expect(result).toBe(expected);
+    });
+  });
+
+  describe('search', () => {
+    it('should delegate to repository.findManyDynamic and return its result', async () => {
+      const params = { alias: 'fazenda', city: 'sao paulo' };
+      const date = new Date();
+      const expected = [
+        {
+          id: uuid,
+          owner: {
+            id: uuid,
+            fullname: 'john doe',
+          },
+          alias: 'fazenda do doe',
+          area_total: 200,
+          area_arable: 80,
+          area_vegetation: 120,
+          area_type: 'HECTAR',
+          city: 'sao paulo',
+          state: 'sp',
+          country: 'brasil',
+          metadata: {},
+          created_at: date,
+          updated_at: date,
+        },
+      ];
+      repository.findManyDynamic.mockResolvedValue(expected);
+
+      const result = await service.search(params);
+
+      expect(repository.findManyDynamic).toHaveBeenCalledTimes(1);
+      expect(repository.findManyDynamic).toHaveBeenCalledWith(params);
+      expect(result).toBe(expected);
+    });
+
+    it('should propagate errors thrown by repository.search', async () => {
+      const error = new Error('boom');
+      repository.findManyDynamic.mockRejectedValue(error);
+
+      await expect(service.search({ alias: 'john' })).rejects.toBe(error);
     });
   });
 });

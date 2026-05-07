@@ -17,6 +17,7 @@ describe('FarmPropertyRepository', () => {
     database = {
       farm_property: {
         findFirst: jest.fn(),
+        findMany: jest.fn(),
         update: jest.fn(),
       },
       errorHandler: jest.fn(),
@@ -152,6 +153,91 @@ describe('FarmPropertyRepository', () => {
         owner_id_alias: { owner_id: uuid, alias: 'a' },
       });
       expect(result).toEqual([{ id: uuid, alias: 'a' }]);
+    });
+  });
+
+  describe('search', () => {
+    const expectedSelect = {
+      id: true,
+      owner: {
+        select: {
+          id: true,
+          fullname: true,
+        },
+      },
+      alias: true,
+      area_total: true,
+      area_arable: true,
+      area_vegetation: true,
+      area_type: true,
+      city: true,
+      state: true,
+      country: true,
+      metadata: true,
+      created_at: true,
+      updated_at: true,
+    };
+
+    it('should add a contains+insensitive filter for each provided field', async () => {
+      const rows = [{ id: uuid }] as any;
+      database.farm_property.findMany.mockResolvedValue(rows);
+
+      const result = await repository.findManyDynamic({
+        alias: 'fazenda boa vista',
+        owner_id: uuid,
+        city: 'sao',
+        state: 'sp',
+      });
+
+      expect(database.farm_property.findMany).toHaveBeenCalledTimes(1);
+      expect(database.farm_property.findMany).toHaveBeenCalledWith({
+        where: {
+          deleted: false,
+          alias: { contains: 'fazenda boa vista', mode: 'insensitive' },
+          owner_id: uuid,
+          city: { contains: 'sao', mode: 'insensitive' },
+          state: { contains: 'sp', mode: 'insensitive' },
+        },
+        select: expectedSelect,
+      });
+      expect(result).toBe(rows);
+    });
+
+    it('should omit absent fields from the where clause', async () => {
+      database.farm_property.findMany.mockResolvedValue([]);
+
+      await repository.findManyDynamic({ alias: 'fazenda do joao' });
+
+      expect(database.farm_property.findMany).toHaveBeenCalledWith({
+        where: {
+          deleted: false,
+          alias: { contains: 'fazenda do joao', mode: 'insensitive' },
+        },
+        select: expectedSelect,
+      });
+    });
+
+    it('should query only by deleted:false when no fields are provided', async () => {
+      database.farm_property.findMany.mockResolvedValue([]);
+
+      await repository.findManyDynamic({});
+
+      expect(database.farm_property.findMany).toHaveBeenCalledWith({
+        where: { deleted: false },
+        select: expectedSelect,
+      });
+    });
+
+    it('should return an empty array and call errorHandler when prisma throws', async () => {
+      const error = new Error('boom');
+      database.farm_property.findMany.mockRejectedValue(error);
+
+      const result = await repository.findManyDynamic({
+        alias: 'fazenda do joaoo',
+      });
+
+      expect(database.errorHandler).toHaveBeenCalledWith(error);
+      expect(result).toEqual([]);
     });
   });
 });

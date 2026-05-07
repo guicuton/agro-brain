@@ -180,7 +180,7 @@ describe('FarmOwnerRepository', () => {
       const rows = [{ id: uuid }] as any;
       database.farm_owner.findMany.mockResolvedValue(rows);
 
-      const result = await repository.search({
+      const result = await repository.findManyDynamic({
         fullname: 'john',
         doc: '123',
         city: 'sao',
@@ -204,7 +204,7 @@ describe('FarmOwnerRepository', () => {
     it('should omit absent fields from the where clause', async () => {
       database.farm_owner.findMany.mockResolvedValue([]);
 
-      await repository.search({ fullname: 'john' });
+      await repository.findManyDynamic({ fullname: 'john' });
 
       expect(database.farm_owner.findMany).toHaveBeenCalledWith({
         where: {
@@ -218,7 +218,7 @@ describe('FarmOwnerRepository', () => {
     it('should query only by deleted:false when no fields are provided', async () => {
       database.farm_owner.findMany.mockResolvedValue([]);
 
-      await repository.search({});
+      await repository.findManyDynamic({});
 
       expect(database.farm_owner.findMany).toHaveBeenCalledWith({
         where: { deleted: false },
@@ -230,7 +230,7 @@ describe('FarmOwnerRepository', () => {
       const error = new Error('boom');
       database.farm_owner.findMany.mockRejectedValue(error);
 
-      const result = await repository.search({ fullname: 'john' });
+      const result = await repository.findManyDynamic({ fullname: 'john' });
 
       expect(database.errorHandler).toHaveBeenCalledWith(error);
       expect(result).toEqual([]);

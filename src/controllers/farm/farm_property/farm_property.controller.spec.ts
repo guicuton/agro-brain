@@ -3,6 +3,7 @@ import {
   IFarmPropertyCreatePromise,
   IFarmPropertyGetOnePromise,
   IFarmPropertyGetRelationsPromise,
+  IFarmPropertySearchPromise,
   IFarmPropertyUpdatePromise,
 } from '@app/farm';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -11,6 +12,7 @@ import {
   IFarmIdDto,
   IFarmPropertyBulkCreateDTO,
   IFarmPropertyDTO,
+  IFarmPropertySearchDTO,
   IFarmPropertyUpdateDTO,
 } from '../farm.dto';
 import { FarmPropertyController } from './farm_property.controller';
@@ -48,6 +50,7 @@ describe('FarmPropertyController', () => {
       getRelationsById: jest.fn(),
       updateOneById: jest.fn(),
       softDeleteById: jest.fn(),
+      search: jest.fn(),
     } as any;
 
     const module: TestingModule = await Test.createTestingModule({
@@ -189,6 +192,52 @@ describe('FarmPropertyController', () => {
       controllerService.softDeleteById.mockRejectedValue(error);
 
       await expect(controller.softDelete(user, ip, param)).rejects.toBe(error);
+    });
+  });
+
+  describe('search', () => {
+    const query: IFarmPropertySearchDTO = {
+      alias: 'farm john',
+      city: 'sao paulo',
+      state: 'sp',
+    };
+
+    it('should delegate to controllerService.search and return its result', async () => {
+      const date = new Date();
+      const expected: IFarmPropertySearchPromise[] = [
+        {
+          id: uuid,
+          alias: 'john doe farm',
+          owner: {
+            id: uuid,
+            fullname: 'john doe',
+          },
+          area_total: 100,
+          area_arable: 60,
+          area_vegetation: 40,
+          area_type: AREA_TYPE.HECTAR,
+          city: 'sao paulo',
+          state: 'sp',
+          country: 'brazil',
+          metadata: {},
+          created_at: date,
+          updated_at: date,
+        },
+      ];
+      controllerService.search.mockResolvedValue(expected);
+
+      const result = await controller.search(query);
+
+      expect(controllerService.search).toHaveBeenCalledTimes(1);
+      expect(controllerService.search).toHaveBeenCalledWith({ query });
+      expect(result).toBe(expected);
+    });
+
+    it('should propagate errors thrown by controllerService.search', async () => {
+      const error = new Error('search failed');
+      controllerService.search.mockRejectedValue(error);
+
+      await expect(controller.search(query)).rejects.toBe(error);
     });
   });
 });

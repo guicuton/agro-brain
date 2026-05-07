@@ -178,7 +178,7 @@ export class FarmOwnerRepository {
     });
   }
 
-  async search(
+  async findManyDynamic(
     params: IFarmOwnerSearchParams,
   ): Promise<IFarmOwnerSearchPromise[]> {
     const { fullname, doc, city, state } = params;

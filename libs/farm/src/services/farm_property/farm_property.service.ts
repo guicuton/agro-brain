@@ -1,5 +1,9 @@
 import { CacheModuleServices } from '@app/cache';
-import { FarmPropertyRepository } from '@app/database';
+import {
+  FarmPropertyRepository,
+  IFarmPropertySearchParams,
+  IFarmPropertySearchPromise,
+} from '@app/database';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { DEFAULT_TTL } from '../../../../../utils/constants';
 import {
@@ -142,5 +146,11 @@ export class FarmPropertyService {
     ]);
 
     return repositoryResult;
+  }
+
+  async search(
+    params: IFarmPropertySearchParams,
+  ): Promise<IFarmPropertySearchPromise[]> {
+    return await this.farmPropertyRepository.findManyDynamic(params);
   }
 }

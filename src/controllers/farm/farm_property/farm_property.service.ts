@@ -3,6 +3,7 @@ import {
   IFarmPropertyCreatePromise,
   IFarmPropertyGetOnePromise,
   IFarmPropertyGetRelationsPromise,
+  IFarmPropertySearchPromise,
   IFarmPropertyUpdatePromise,
 } from '@app/farm';
 import { LoggerService } from '@app/logger';
@@ -11,6 +12,7 @@ import {
   IFarmPropertyCreateManyParams,
   IFarmPropertyGetOneParams,
   IFarmPropertyGetRelationsParams,
+  IFarmPropertySearchParams,
   IFarmPropertySoftDeleteParams,
   IFarmPropertyUpdateOneParams,
 } from '../farm.interface';
@@ -93,6 +95,16 @@ export class FarmPropertyControllerService {
         this.logContext,
       );
     }
+
+    return serviceResult;
+  }
+
+  async search(
+    params: IFarmPropertySearchParams,
+  ): Promise<IFarmPropertySearchPromise[]> {
+    const { query } = params;
+
+    const serviceResult = await this.farmPropertyService.search(query);
 
     return serviceResult;
   }

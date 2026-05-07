@@ -14,6 +14,7 @@ import {
   IFarmPropertyCreatePromise,
   IFarmPropertyGetOnePromise,
   IFarmPropertyGetRelationsPromise,
+  IFarmPropertySearchPromise,
   IFarmPropertyUpdatePromise,
 } from '@app/farm';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
@@ -155,6 +156,81 @@ export class IFarmOwnerSearchDTO {
   @IsString()
   @IsNotEmpty()
   doc?: string;
+
+  @ApiPropertyOptional({
+    description: 'Partial city (case-insensitive)',
+    example: 'sao',
+  })
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  @Transform(({ value }) => value?.toLowerCase())
+  city?: string;
+
+  @ApiPropertyOptional({
+    description: 'Partial state (case-insensitive)',
+    example: 'sp',
+  })
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  @Transform(({ value }) => value?.toLowerCase())
+  state?: string;
+}
+
+export class IFarmPropertySearchDTO {
+  @ApiPropertyOptional({
+    description: 'Partial alias of farm (case-insensitive)',
+    example: 'fazenda do joao',
+  })
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  @Transform(({ value }) => value?.toLowerCase())
+  alias?: string;
+
+  @ApiPropertyOptional({
+    description: 'Id from owner',
+    format: 'uuid',
+  })
+  @IsOptional()
+  @IsUUID()
+  @IsString()
+  @IsNotEmpty()
+  owner_id?: string;
+
+  @ApiPropertyOptional({
+    description: 'Greater or equal total area size',
+    example: 120,
+    minimum: 1,
+  })
+  @IsOptional()
+  @IsInt()
+  @IsPositive()
+  @Type(() => Number)
+  area_total?: number;
+
+  @ApiPropertyOptional({
+    description: 'Greater or equal arable area',
+    example: 120,
+    minimum: 1,
+  })
+  @IsOptional()
+  @IsInt()
+  @IsPositive()
+  @Type(() => Number)
+  area_arable?: number;
+
+  @ApiPropertyOptional({
+    description: 'Greater or equal vegetation area',
+    example: 120,
+    minimum: 1,
+  })
+  @IsOptional()
+  @IsInt()
+  @IsPositive()
+  @Type(() => Number)
+  area_vegetation?: number;
 
   @ApiPropertyOptional({
     description: 'Partial city (case-insensitive)',
@@ -727,6 +803,47 @@ export class IFarmPropertyCreateResponseDTO implements IFarmPropertyCreatePromis
 export class IFarmPropertyUpdateResponseDTO implements IFarmPropertyUpdatePromise {
   @ApiProperty({ format: 'uuid' })
   id: string;
+}
+
+export class IFarmPropertySearchResponseDTO implements IFarmPropertySearchPromise {
+  @ApiProperty({ format: 'uuid' })
+  id: string;
+
+  @ApiProperty({ type: () => IFarmOwnerSummaryDTO })
+  owner: IFarmOwnerSummaryDTO;
+
+  @ApiProperty({ example: 'fazenda do joao' })
+  alias: string;
+
+  @ApiProperty({ example: 100 })
+  area_total: number;
+
+  @ApiProperty({ example: 100 })
+  area_arable: number;
+
+  @ApiProperty({ example: 100 })
+  area_vegetation: number;
+
+  @ApiProperty({ enum: AREA_TYPE, example: AREA_TYPE.HECTAR })
+  area_type: string;
+
+  @ApiProperty({ example: 'sao paulo' })
+  city: string;
+
+  @ApiProperty({ example: 'sp' })
+  state: string;
+
+  @ApiProperty({ example: 'brazil' })
+  country: string;
+
+  @ApiProperty({ type: 'object', nullable: true, additionalProperties: true })
+  metadata: any;
+
+  @ApiProperty({ type: String, format: 'date-time' })
+  created_at: Date;
+
+  @ApiProperty({ type: String, format: 'date-time' })
+  updated_at: Date;
 }
 
 class IFarmPropertyHarvestDeepDTO {
