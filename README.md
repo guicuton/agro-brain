@@ -3,6 +3,14 @@
 API para gestão de produtores rurais, propriedades, safras e culturas.
 Aplicação do teste técnico para Backend Node [Brain Agriculture](https://github.com/brain-ag/trabalhe-conosco)
 
+[![CI Checks](https://github.com/guicuton/agro-brain/actions/workflows/pull-request.yml/badge.svg?branch=master)](https://github.com/guicuton/agro-brain/actions/workflows/pull-request.yml)
+![Node](https://img.shields.io/badge/node-%3E%3D22-green?logo=node.js)
+![NestJS](https://img.shields.io/badge/NestJS-11-E0234E?logo=nestjs)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?logo=typescript&logoColor=white)
+![Prisma](https://img.shields.io/badge/Prisma-7-2D3748?logo=prisma)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-336791?logo=postgresql&logoColor=white)
+![License](https://img.shields.io/badge/license-UNLICENSED-lightgrey)
+
 ## Infra
 
 - **NestJS** — framework HTTP/DI
