@@ -141,6 +141,8 @@ A documentação Swagger lista todos os endpoints, schemas de input/output e os 
 
 Em produção tudo roda em containers via `docker` + `docker-compose`. Após preparar o `configurations/envs/.env.prod`, execute na raiz do projeto:
 
+> **Importante:** Para o HOST do Postgres e Redis utilize o nome do serviço indicado no parametro container_name do docker-compose.yml
+
 ```bash
 docker compose --env-file configurations/envs/.env.prod up --build -d
 ```
