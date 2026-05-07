@@ -7,6 +7,8 @@ import {
   IFarmOwnerGetOnePromise,
   IFarmOwnerGetRelationsParams,
   IFarmOwnerGetRelationsPromise,
+  IFarmOwnerSearchParams,
+  IFarmOwnerSearchPromise,
   IFarmOwnerSoftDeleteParams,
   IFarmOwnerSoftDeletePromise,
   IFarmOwnerUpdateParams,
@@ -174,5 +176,36 @@ export class FarmOwnerRepository {
       }
       return created;
     });
+  }
+
+  async search(
+    params: IFarmOwnerSearchParams,
+  ): Promise<IFarmOwnerSearchPromise[]> {
+    const { fullname, doc, city, state } = params;
+    const promise = await this.repository.farm_owner
+      .findMany({
+        where: {
+          deleted: false,
+          ...(fullname && {
+            fullname: { contains: fullname, mode: 'insensitive' },
+          }),
+          ...(doc && { doc: { contains: doc, mode: 'insensitive' } }),
+          ...(city && { city: { contains: city, mode: 'insensitive' } }),
+          ...(state && { state: { contains: state, mode: 'insensitive' } }),
+        },
+        select: {
+          id: true,
+          fullname: true,
+          doc: true,
+          city: true,
+          state: true,
+          country: true,
+          created_at: true,
+          updated_at: true,
+        },
+      })
+      .catch((err) => this.repository.errorHandler(err));
+
+    return promise ?? [];
   }
 }

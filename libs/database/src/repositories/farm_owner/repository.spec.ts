@@ -15,6 +15,7 @@ describe('FarmOwnerRepository', () => {
     database = {
       farm_owner: {
         findFirst: jest.fn(),
+        findMany: jest.fn(),
         update: jest.fn(),
       },
       errorHandler: jest.fn(),
@@ -157,6 +158,79 @@ describe('FarmOwnerRepository', () => {
       txFarmOwner.upsert.mockRejectedValue(error);
 
       const result = await repository.createMany(items);
+
+      expect(database.errorHandler).toHaveBeenCalledWith(error);
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('search', () => {
+    const expectedSelect = {
+      id: true,
+      fullname: true,
+      doc: true,
+      city: true,
+      state: true,
+      country: true,
+      created_at: true,
+      updated_at: true,
+    };
+
+    it('should add a contains+insensitive filter for each provided field', async () => {
+      const rows = [{ id: uuid }] as any;
+      database.farm_owner.findMany.mockResolvedValue(rows);
+
+      const result = await repository.search({
+        fullname: 'john',
+        doc: '123',
+        city: 'sao',
+        state: 'sp',
+      });
+
+      expect(database.farm_owner.findMany).toHaveBeenCalledTimes(1);
+      expect(database.farm_owner.findMany).toHaveBeenCalledWith({
+        where: {
+          deleted: false,
+          fullname: { contains: 'john', mode: 'insensitive' },
+          doc: { contains: '123', mode: 'insensitive' },
+          city: { contains: 'sao', mode: 'insensitive' },
+          state: { contains: 'sp', mode: 'insensitive' },
+        },
+        select: expectedSelect,
+      });
+      expect(result).toBe(rows);
+    });
+
+    it('should omit absent fields from the where clause', async () => {
+      database.farm_owner.findMany.mockResolvedValue([]);
+
+      await repository.search({ fullname: 'john' });
+
+      expect(database.farm_owner.findMany).toHaveBeenCalledWith({
+        where: {
+          deleted: false,
+          fullname: { contains: 'john', mode: 'insensitive' },
+        },
+        select: expectedSelect,
+      });
+    });
+
+    it('should query only by deleted:false when no fields are provided', async () => {
+      database.farm_owner.findMany.mockResolvedValue([]);
+
+      await repository.search({});
+
+      expect(database.farm_owner.findMany).toHaveBeenCalledWith({
+        where: { deleted: false },
+        select: expectedSelect,
+      });
+    });
+
+    it('should return an empty array and call errorHandler when prisma throws', async () => {
+      const error = new Error('boom');
+      database.farm_owner.findMany.mockRejectedValue(error);
+
+      const result = await repository.search({ fullname: 'john' });
 
       expect(database.errorHandler).toHaveBeenCalledWith(error);
       expect(result).toEqual([]);

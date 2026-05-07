@@ -83,3 +83,21 @@ export interface IFarmOwnerCreatePromise {
   id: string;
   fullname: string;
 }
+
+export interface IFarmOwnerSearchParams {
+  fullname?: string;
+  doc?: string;
+  city?: string;
+  state?: string;
+}
+
+export interface IFarmOwnerSearchPromise {
+  id: string;
+  fullname: string;
+  doc: string;
+  city: string;
+  state: string;
+  country: string;
+  created_at: Date;
+  updated_at: Date;
+}

@@ -9,6 +9,7 @@ import {
   IFarmOwnerCreatePromise,
   IFarmOwnerGetOnePromise,
   IFarmOwnerGetRelationsPromise,
+  IFarmOwnerSearchPromise,
   IFarmOwnerUpdatePromise,
   IFarmPropertyCreatePromise,
   IFarmPropertyGetOnePromise,
@@ -133,6 +134,47 @@ export class IFarmOwnerBulkCreateDTO {
   @Type(() => IFarmOwnerDTO)
   @ArrayMaxSize(10)
   data: IFarmOwnerDTO[];
+}
+
+export class IFarmOwnerSearchDTO {
+  @ApiPropertyOptional({
+    description: 'Partial owner full name (case-insensitive)',
+    example: 'john',
+  })
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  @Transform(({ value }) => value?.toLowerCase())
+  fullname?: string;
+
+  @ApiPropertyOptional({
+    description: 'Partial owner document (CPF or CNPJ, only digits)',
+    example: '123456',
+  })
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  doc?: string;
+
+  @ApiPropertyOptional({
+    description: 'Partial city (case-insensitive)',
+    example: 'sao',
+  })
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  @Transform(({ value }) => value?.toLowerCase())
+  city?: string;
+
+  @ApiPropertyOptional({
+    description: 'Partial state (case-insensitive)',
+    example: 'sp',
+  })
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  @Transform(({ value }) => value?.toLowerCase())
+  state?: string;
 }
 
 export class IFarmPropertyDTO {
@@ -646,6 +688,32 @@ export class IFarmOwnerGetRelationsResponseDTO implements IFarmOwnerGetRelations
 
   @ApiProperty({ description: 'Number of crops across harvests', example: 12 })
   crops: number;
+}
+
+export class IFarmOwnerSearchResponseDTO implements IFarmOwnerSearchPromise {
+  @ApiProperty({ format: 'uuid' })
+  id: string;
+
+  @ApiProperty({ example: 'john doe' })
+  fullname: string;
+
+  @ApiProperty({ example: '12345678909' })
+  doc: string;
+
+  @ApiProperty({ example: 'sao paulo' })
+  city: string;
+
+  @ApiProperty({ example: 'sp' })
+  state: string;
+
+  @ApiProperty({ example: 'brazil' })
+  country: string;
+
+  @ApiProperty({ type: String, format: 'date-time' })
+  created_at: Date;
+
+  @ApiProperty({ type: String, format: 'date-time' })
+  updated_at: Date;
 }
 
 export class IFarmPropertyCreateResponseDTO implements IFarmPropertyCreatePromise {

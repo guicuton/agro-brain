@@ -6,6 +6,7 @@ import {
   IFarmHarvestUpdateDTO,
   IFarmIdDto,
   IFarmOwnerBulkCreateDTO,
+  IFarmOwnerSearchDTO,
   IFarmOwnerUpdateDTO,
   IFarmPropertyBulkCreateDTO,
   IFarmPropertyUpdateDTO,
@@ -36,6 +37,10 @@ export interface IFarmOwnerGetOneParams {
 
 export interface IFarmOwnerGetRelationsParams {
   param: IFarmIdDto;
+}
+
+export interface IFarmOwnerSearchParams {
+  query: IFarmOwnerSearchDTO;
 }
 
 export interface IFarmPropertyCreateManyParams {

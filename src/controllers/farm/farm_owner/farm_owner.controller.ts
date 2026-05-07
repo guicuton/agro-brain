@@ -4,6 +4,7 @@ import {
   IFarmOwnerCreatePromise,
   IFarmOwnerGetOnePromise,
   IFarmOwnerGetRelationsPromise,
+  IFarmOwnerSearchPromise,
   IFarmOwnerUpdatePromise,
 } from '@app/farm';
 import {
@@ -15,6 +16,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -22,6 +24,7 @@ import {
   ApiBody,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -32,6 +35,8 @@ import {
   IFarmOwnerCreateResponseDTO,
   IFarmOwnerGetOneResponseDTO,
   IFarmOwnerGetRelationsResponseDTO,
+  IFarmOwnerSearchDTO,
+  IFarmOwnerSearchResponseDTO,
   IFarmOwnerUpdateDTO,
   IFarmOwnerUpdateResponseDTO,
 } from '../farm.dto';
@@ -64,6 +69,40 @@ export class FarmOwnerController {
     @Body() body: IFarmOwnerBulkCreateDTO,
   ): Promise<IFarmOwnerCreatePromise[]> {
     return await this.controllerService.createMany({ user, body, ip });
+  }
+
+  @ApiOperation({
+    summary: 'Search farm owners',
+    description:
+      'Performs a partial, case-insensitive search by fullname, doc, city and/or state. Only the provided query parameters are used as filters.',
+  })
+  @ApiQuery({
+    name: 'fullname',
+    required: false,
+    type: String,
+    example: 'john',
+  })
+  @ApiQuery({
+    name: 'doc',
+    required: false,
+    type: String,
+    example: '123456',
+  })
+  @ApiQuery({ name: 'city', required: false, type: String, example: 'sao' })
+  @ApiQuery({ name: 'state', required: false, type: String, example: 'sp' })
+  @ApiResponse({
+    status: 200,
+    description: 'Matching owners.',
+    type: IFarmOwnerSearchResponseDTO,
+    isArray: true,
+  })
+  @ApiResponse({ status: 400, description: 'Validation error.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  @Get('owner/search')
+  async search(
+    @Query() query: IFarmOwnerSearchDTO,
+  ): Promise<IFarmOwnerSearchPromise[]> {
+    return await this.controllerService.search({ query });
   }
 
   @ApiOperation({

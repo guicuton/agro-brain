@@ -3,6 +3,7 @@ import {
   IFarmOwnerCreatePromise,
   IFarmOwnerGetOnePromise,
   IFarmOwnerGetRelationsPromise,
+  IFarmOwnerSearchPromise,
   IFarmOwnerUpdatePromise,
 } from '@app/farm';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -10,6 +11,7 @@ import {
   IFarmIdDto,
   IFarmOwnerBulkCreateDTO,
   IFarmOwnerDTO,
+  IFarmOwnerSearchDTO,
   IFarmOwnerUpdateDTO,
 } from '../farm.dto';
 import { FarmOwnerController } from './farm_owner.controller';
@@ -43,6 +45,7 @@ describe('FarmOwnerController', () => {
       getRelationsById: jest.fn(),
       updateOneById: jest.fn(),
       softDeleteById: jest.fn(),
+      search: jest.fn(),
     } as any;
 
     const module: TestingModule = await Test.createTestingModule({
@@ -185,6 +188,43 @@ describe('FarmOwnerController', () => {
       controllerService.softDeleteById.mockRejectedValue(error);
 
       await expect(controller.softDelete(user, ip, param)).rejects.toBe(error);
+    });
+  });
+
+  describe('search', () => {
+    const query: IFarmOwnerSearchDTO = {
+      fullname: 'john',
+      city: 'sao paulo',
+      state: 'sp',
+    };
+
+    it('should delegate to controllerService.search and return its result', async () => {
+      const expected: IFarmOwnerSearchPromise[] = [
+        {
+          id: uuid,
+          fullname: 'john doe',
+          doc: '12345678909',
+          city: 'sao paulo',
+          state: 'sp',
+          country: 'brazil',
+          created_at: new Date(),
+          updated_at: new Date(),
+        },
+      ];
+      controllerService.search.mockResolvedValue(expected);
+
+      const result = await controller.search(query);
+
+      expect(controllerService.search).toHaveBeenCalledTimes(1);
+      expect(controllerService.search).toHaveBeenCalledWith({ query });
+      expect(result).toBe(expected);
+    });
+
+    it('should propagate errors thrown by controllerService.search', async () => {
+      const error = new Error('search failed');
+      controllerService.search.mockRejectedValue(error);
+
+      await expect(controller.search(query)).rejects.toBe(error);
     });
   });
 });

@@ -9,6 +9,8 @@ import {
   IFarmOwnerGetOnePromise,
   IFarmOwnerGetRelationsParams,
   IFarmOwnerGetRelationsPromise,
+  IFarmOwnerSearchParams,
+  IFarmOwnerSearchPromise,
   IFarmOwnerSoftDeleteParams,
   IFarmOwnerSoftDeletePromise,
   IFarmOwnerUpdateParams,
@@ -135,5 +137,11 @@ export class FarmOwnerService {
     );
 
     return repositoryResult;
+  }
+
+  async search(
+    params: IFarmOwnerSearchParams,
+  ): Promise<IFarmOwnerSearchPromise[]> {
+    return await this.farmOwnerRepository.search(params);
   }
 }

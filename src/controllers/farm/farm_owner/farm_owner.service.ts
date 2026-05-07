@@ -3,6 +3,7 @@ import {
   IFarmOwnerCreatePromise,
   IFarmOwnerGetOnePromise,
   IFarmOwnerGetRelationsPromise,
+  IFarmOwnerSearchPromise,
   IFarmOwnerUpdatePromise,
 } from '@app/farm';
 import { LoggerService } from '@app/logger';
@@ -11,6 +12,7 @@ import {
   IFarmOwnerCreateManyParams,
   IFarmOwnerGetOneParams,
   IFarmOwnerGetRelationsParams,
+  IFarmOwnerSearchParams,
   IFarmOwnerSoftDeleteParams,
   IFarmOwnerUpdateOneParams,
 } from '../farm.interface';
@@ -93,6 +95,16 @@ export class FarmOwnerControllerService {
         this.logContext,
       );
     }
+
+    return serviceResult;
+  }
+
+  async search(
+    params: IFarmOwnerSearchParams,
+  ): Promise<IFarmOwnerSearchPromise[]> {
+    const { query } = params;
+
+    const serviceResult = await this.farmOwnerService.search(query);
 
     return serviceResult;
   }

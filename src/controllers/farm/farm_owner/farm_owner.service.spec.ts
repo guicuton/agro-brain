@@ -3,6 +3,7 @@ import {
   IFarmOwnerCreatePromise,
   IFarmOwnerGetOnePromise,
   IFarmOwnerGetRelationsPromise,
+  IFarmOwnerSearchPromise,
   IFarmOwnerSoftDeletePromise,
   IFarmOwnerUpdatePromise,
 } from '@app/farm';
@@ -13,6 +14,7 @@ import {
   IFarmIdDto,
   IFarmOwnerBulkCreateDTO,
   IFarmOwnerDTO,
+  IFarmOwnerSearchDTO,
   IFarmOwnerUpdateDTO,
 } from '../farm.dto';
 import { FarmOwnerControllerService } from './farm_owner.service';
@@ -55,6 +57,7 @@ describe('FarmOwnerControllerService', () => {
             softDeleteById: jest.fn(),
             updateOneById: jest.fn(),
             createMany: jest.fn(),
+            search: jest.fn(),
           },
         },
       ],
@@ -231,6 +234,43 @@ describe('FarmOwnerControllerService', () => {
         controllerService.createMany({ user, ip, body }),
       ).rejects.toBe(error);
       expect(logger.log).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('search', () => {
+    const query: IFarmOwnerSearchDTO = {
+      fullname: 'john',
+      city: 'sao paulo',
+      state: 'sp',
+    };
+
+    it('should call farmOwnerService.search with the query and return its result', async () => {
+      const expected: IFarmOwnerSearchPromise[] = [
+        {
+          id: uuid,
+          fullname: 'john doe',
+          doc: '12345678909',
+          city: 'sao paulo',
+          state: 'sp',
+          country: 'brazil',
+          created_at: new Date(),
+          updated_at: new Date(),
+        },
+      ];
+      farmOwnerService.search.mockResolvedValue(expected);
+
+      const result = await controllerService.search({ query });
+
+      expect(farmOwnerService.search).toHaveBeenCalledTimes(1);
+      expect(farmOwnerService.search).toHaveBeenCalledWith(query);
+      expect(result).toBe(expected);
+    });
+
+    it('should propagate errors thrown by farmOwnerService.search', async () => {
+      const error = new Error('search failed');
+      farmOwnerService.search.mockRejectedValue(error);
+
+      await expect(controllerService.search({ query })).rejects.toBe(error);
     });
   });
 });

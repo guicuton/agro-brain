@@ -32,6 +32,7 @@ describe('FarmOwnerService', () => {
             softDeleteById: jest.fn(),
             updateOneById: jest.fn(),
             createMany: jest.fn(),
+            search: jest.fn(),
           },
         },
       ],
@@ -191,6 +192,38 @@ describe('FarmOwnerService', () => {
         { ...data[0], created_at: expect.any(Date) },
       ]);
       expect(result).toBe(expected);
+    });
+  });
+
+  describe('search', () => {
+    it('should delegate to repository.search and return its result', async () => {
+      const params = { fullname: 'john', city: 'sao paulo' };
+      const expected = [
+        {
+          id: uuid,
+          fullname: 'john doe',
+          doc: '12345678909',
+          city: 'sao paulo',
+          state: 'sp',
+          country: 'brazil',
+          created_at: new Date(),
+          updated_at: new Date(),
+        },
+      ];
+      repository.search.mockResolvedValue(expected);
+
+      const result = await service.search(params);
+
+      expect(repository.search).toHaveBeenCalledTimes(1);
+      expect(repository.search).toHaveBeenCalledWith(params);
+      expect(result).toBe(expected);
+    });
+
+    it('should propagate errors thrown by repository.search', async () => {
+      const error = new Error('boom');
+      repository.search.mockRejectedValue(error);
+
+      await expect(service.search({ doc: '123' })).rejects.toBe(error);
     });
   });
 });
