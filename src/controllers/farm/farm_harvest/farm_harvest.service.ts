@@ -13,7 +13,7 @@ import {
   IFarmHarvestGetRelationsParams,
   IFarmHarvestSoftDeleteParams,
   IFarmHarvestUpdateOneParams,
-} from './farm.interface';
+} from '../farm.interface';
 
 @Injectable()
 export class FarmHarvestControllerService {

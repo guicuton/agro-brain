@@ -11,7 +11,7 @@ import {
   IFarmCropsGetOneParams,
   IFarmCropsSoftDeleteParams,
   IFarmCropsUpdateOneParams,
-} from './farm.interface';
+} from '../farm.interface';
 
 @Injectable()
 export class FarmCropsControllerService {

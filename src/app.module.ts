@@ -13,14 +13,14 @@ import { config } from '../configurations/scripts/config';
 import { DEFAULT_TTL, ThrottleLimits } from '../utils/constants';
 import { AuthenticationController } from './controllers/auth/auth.controller';
 import { AuthenticationControllerService } from './controllers/auth/auth.service';
-import { FarmOwnerController } from './controllers/farm/farm_owner.controller';
-import { FarmOwnerControllerService } from './controllers/farm/farm_owner.service';
-import { FarmPropertyController } from './controllers/farm/farm_property.controller';
-import { FarmPropertyControllerService } from './controllers/farm/farm_property.service';
-import { FarmHarvestController } from './controllers/farm/farm_harvest.controller';
-import { FarmHarvestControllerService } from './controllers/farm/farm_harvest.service';
-import { FarmCropsController } from './controllers/farm/farm_crops.controller';
-import { FarmCropsControllerService } from './controllers/farm/farm_crops.service';
+import { FarmOwnerController } from './controllers/farm/farm_owner/farm_owner.controller';
+import { FarmOwnerControllerService } from './controllers/farm/farm_owner/farm_owner.service';
+import { FarmPropertyController } from './controllers/farm/farm_property/farm_property.controller';
+import { FarmPropertyControllerService } from './controllers/farm/farm_property/farm_property.service';
+import { FarmHarvestController } from './controllers/farm/farm_harvest/farm_harvest.controller';
+import { FarmHarvestControllerService } from './controllers/farm/farm_harvest/farm_harvest.service';
+import { FarmCropsController } from './controllers/farm/farm_crops/farm_crops.controller';
+import { FarmCropsControllerService } from './controllers/farm/farm_crops/farm_crops.service';
 
 @Module({
   imports: [

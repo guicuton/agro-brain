@@ -13,7 +13,7 @@ import {
   IFarmPropertyGetRelationsParams,
   IFarmPropertySoftDeleteParams,
   IFarmPropertyUpdateOneParams,
-} from './farm.interface';
+} from '../farm.interface';
 
 @Injectable()
 export class FarmPropertyControllerService {

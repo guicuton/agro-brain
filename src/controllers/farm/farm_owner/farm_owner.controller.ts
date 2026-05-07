@@ -25,7 +25,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { User } from '../../../decorators/user.decorator';
+import { User } from '../../../../decorators/user.decorator';
 import {
   IFarmIdDto,
   IFarmOwnerBulkCreateDTO,
@@ -34,7 +34,7 @@ import {
   IFarmOwnerGetRelationsResponseDTO,
   IFarmOwnerUpdateDTO,
   IFarmOwnerUpdateResponseDTO,
-} from './farm.dto';
+} from '../farm.dto';
 import { FarmOwnerControllerService } from './farm_owner.service';
 
 @ApiTags('Farm Owner')

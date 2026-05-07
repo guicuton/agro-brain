@@ -13,7 +13,7 @@ import {
   IFarmOwnerGetRelationsParams,
   IFarmOwnerSoftDeleteParams,
   IFarmOwnerUpdateOneParams,
-} from './farm.interface';
+} from '../farm.interface';
 
 @Injectable()
 export class FarmOwnerControllerService {

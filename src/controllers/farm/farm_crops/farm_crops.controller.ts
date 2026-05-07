@@ -24,7 +24,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { User } from '../../../decorators/user.decorator';
+import { User } from '../../../../decorators/user.decorator';
 import {
   IFarmCropsBulkCreateDTO,
   IFarmCropsCreateResponseDTO,
@@ -32,7 +32,7 @@ import {
   IFarmCropsUpdateDTO,
   IFarmCropsUpdateResponseDTO,
   IFarmIdDto,
-} from './farm.dto';
+} from '../farm.dto';
 import { FarmCropsControllerService } from './farm_crops.service';
 
 @ApiTags('Farm Crops')
