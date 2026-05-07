@@ -174,9 +174,16 @@ Recursos disponíveis:
 
 Os endpoints `GET /farm/{owner|property|harvest}/:id/relations` retornam contagens agregadas das entidades relacionadas.
 
+## Testes unitários
+
+Na raiz do projeto rode o comando abaixo para iniciar todos os testes unitários disponíveis
+
+```bash
+npm run test
+```
+
 ## TODO / Roadmap
 
 - [ ] Paginação nos endpoints de busca
 - [ ] Buscas dinâmicas por parâmetros (`city`, `state`, `area`, etc.)
-- [ ] Testes unitários
 - [ ] Observabilidade externa via Prometheus/Grafana
